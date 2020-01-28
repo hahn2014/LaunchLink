@@ -8,7 +8,6 @@ bool done;
 static void finish(int ignore){ done = true; }
 int main() {
     RtMidiIn *midiin = new RtMidiIn();
-    me
     int nBytes, i;
     double stamp;
     // Check available ports.
