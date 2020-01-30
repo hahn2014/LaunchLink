@@ -1,37 +1,6 @@
 #include "midilink.h"
-
-bool done = false;
-
-static void finish(int ignore){ done = true; }
-
-void test(MIDILink* linker) {
-    RtMidiIn* midiin = linker->getInputRetriever();
-    std::vector<unsigned char> message;
-    int nBytes, i;
-    double stamp;
-
-
-    midiin->openPort(linker->portConnection); //link to the desired port
-    // Don't ignore sysex, timing, or active sensing messages.
-    midiin->ignoreTypes(false, false, false);
-
-    (void)signal(SIGINT, finish);
-
-    std::cout << "Reading MIDI from port ... quit with Ctrl-C.\n";
-    while (!done) {
-        stamp = midiin->getMessage(&message);
-        nBytes = message.size();
-        for (i = 0; i < nBytes; i++) {
-            std::cout << "Byte " << i << " = " << (int)message[i] << ", ";
-        }
-        if (nBytes > 0)
-            std::cout << "stamp = " << stamp << std::endl;
-        // Sleep for 10 milliseconds ... platform-dependent.
-        //SLEEP(10);
-    }
-}
-
-
+#include "midiInput.h"
+//#include "midiOutput.h"
 
 int main(int argc, char** argv) {
     MIDILink* linker = new MIDILink();
@@ -42,8 +11,13 @@ int main(int argc, char** argv) {
     }
 
     //open ports and begin communication phase
-    test(linker);
+    //INPUT
+    MIDIInput* input = new MIDIInput();
+    input->initPort(linker);
+    input->startReading();
 
     //cleanup
     delete linker;
+    delete input;
+    //delete output;
 }
